@@ -1,1 +1,26 @@
+## 💡 Key Insights
+
+- **Procedure Patterns:**  
+  The most frequently performed procedures are related to health assessments, hospice care, and mental health screenings, highlighting the focus on preventive and supportive care in the dataset.
+
+- **Cost Insights:**  
+  There is a large variation in base costs across procedures. Critical interventions like ICU admissions and coronary artery bypass surgeries are the most expensive, while routine assessments have much lower costs.
+
+- **Missing Data:**  
+  A significant portion of procedures (over 75%) are missing `REASONCODE` and `REASONDESCRIPTION`, which may require additional data collection or imputation for comprehensive analysis.
+
+- **Patient Demographics:**  
+  The gender distribution is nearly balanced between male and female patients. The age distribution shows a wide range, with all adult age groups represented.
+
+- **Race and Ethnicity:**  
+  Most patients are identified as White and Non-Hispanic, but there is representation from multiple races and both Hispanic and Non-Hispanic ethnicities.
+
+- **Encounter Analysis:**  
+  Ambulatory and outpatient encounters are the most common, while emergency and inpatient encounters, although less frequent, incur higher average costs.
+
+- **Insurance Coverage:**  
+  There is considerable variation in average payer coverage amounts, suggesting differences in insurance plan generosity or patient populations.
+
+- **Data Quality:**  
+  Visualizations of missing data highlight specific fields that may need attention for data completeness in future data collection.
 
