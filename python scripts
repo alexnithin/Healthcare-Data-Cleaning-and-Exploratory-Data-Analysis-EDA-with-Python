@@ -1,0 +1,297 @@
+import pandas as pd
+df = pd.read_csv(r"C:\Users\Dell\Desktop\python DA Project\procedure.csv")
+df
+df['START'] = pd.to_datetime(df['START'])
+df['START'] = df['START'].dt.tz_localize(None)
+df['procedure_start_date'] = df['START'].dt.date
+df['procedure_start_time'] = df['START'].dt.time
+df['STOP'] = pd.to_datetime(df['STOP'])
+df['STOP'] = df['START'].dt.tz_localize(None)
+df['procedure_stop_date'] = df['STOP'].dt.date
+df['procedure_stop_time'] = df['STOP'].dt.time
+df =df.drop(columns ='START')
+df =df.drop(columns ='STOP')
+# Define the desired first columns
+first_cols = ['procedure_start_date', 'procedure_start_time', 
+              'procedure_stop_date', 'procedure_stop_time']
+
+# Get the rest of the columns
+other_cols = [col for col in df.columns if col not in first_cols]
+
+# Reorder DataFrame
+df = df[first_cols + other_cols]
+
+# (Optional) Save to CSV
+df.to_csv('updated_reordered_file.csv', index=False)
+
+# Preview
+df
+df = df.drop_duplicates()
+import pandas as pd
+df1 = pd.read_csv(r"C:\Users\Dell\Desktop\python DA Project\patients.csv")
+df1
+df1['BIRTHDATE'] = pd.to_datetime(df1['BIRTHDATE'], errors='coerce')
+df1 = df1.drop(columns=['SUFFIX'])
+df1 = df1.drop(columns=['MAIDEN'])
+  df1.set_index('Id', inplace=True)
+
+df1['MARITAL'] = df1['MARITAL'].replace({'M': 'Married', 'S': 'Single'})
+df1['GENDER'] = df1['GENDER'].replace({'M': 'Male', 'F': 'Female'})
+df1
+df1.rename(columns={'FIRST': 'First_Name', 'LAST': 'Last_Name'}, inplace=True)
+df1['Last_Name'] = (
+    df1['Last_Name']
+    .fillna('')  
+    .str.replace(r'[^a-zA-Z]', '', regex=True)  
+    .str.title()
+)
+df1['First_Name'] = (
+    df1['First_Name']
+    .fillna('')  
+    .str.replace(r'[^a-zA-Z]', '', regex=True)  
+    .str.title()
+)
+df1
+df2 = pd.read_csv(r"C:\Users\Dell\Desktop\python DA Project\encounters.csv")
+df2
+df2.set_index('Id', inplace=True)
+df2['START'] = pd.to_datetime(df2['START'], errors='coerce')
+df2['encounter_start_date'] = df2['START'].dt.date
+df2['encounter_start_time'] = df2['START'].dt.time
+df2['STOP'] = pd.to_datetime(df2['STOP'], errors='coerce')
+df2['encounter_stop_date'] = df2['STOP'].dt.date
+df2['encounter_stop_time'] = df2['STOP'].dt.time
+df2.drop(columns=['START', 'STOP'], inplace=True)
+cols = df2.columns.tolist()
+for col in ['encounter_start_date', 'encounter_start_time', 'encounter_stop_date', 'encounter_stop_time']:
+    if col in cols:
+        cols.remove(col)
+cols = ['encounter_start_date', 'encounter_start_time', 'encounter_stop_date', 'encounter_stop_time'] + cols
+df2 = df2[cols]
+df2['ENCOUNTERCLASS'] = (
+    df2['ENCOUNTERCLASS']
+    .fillna('')
+    .str.replace(r'[^a-zA-Z]', '', regex=True)
+    .str.title()
+)
+df2.drop(columns=['encounter_start_time', 'encounter_stop_time'], inplace=True)
+
+# Convert to pandas datetime format (not just .dt.date)
+df2['encounter_start_date'] = pd.to_datetime(df2['encounter_start_date'], errors='coerce')
+df2['encounter_stop_date'] = pd.to_datetime(df2['encounter_stop_date'], errors='coerce')
+
+
+df2
+df2.drop_duplicates(inplace=True)
+df3 =pd.read_csv(r"C:\Users\Dell\Desktop\python DA Project\payers.csv")
+df3
+df3.set_index('Id', inplace=True)
+df3
+df.info()
+df1.info()
+df2.info()
+df3.info()
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Top 10 procedures by frequency
+top_procedures = df['DESCRIPTION'].value_counts().head(10)
+
+# Display as a table
+print(top_procedures)
+
+# Plot as a horizontal bar chart
+plt.figure(figsize=(10, 6))
+sns.barplot(x=top_procedures.values, y=top_procedures.index, palette="Blues_d")
+plt.title('Top 10 Most Frequent Procedures')
+plt.xlabel('Count')
+plt.ylabel('Procedure Description')
+plt.tight_layout()
+plt.show()
+
+# Group by DESCRIPTION and calculate the average BASE_COST
+avg_cost_by_procedure = df.groupby('DESCRIPTION')['BASE_COST'].mean().sort_values(ascending=False).head(10)
+
+# Display as a table
+print(avg_cost_by_procedure)
+
+# Plot the results
+plt.figure(figsize=(10, 6))
+sns.barplot(x=avg_cost_by_procedure.values, y=avg_cost_by_procedure.index, palette='viridis')
+plt.title('Top 10 Procedures by Average BASE_COST')
+plt.xlabel('Average BASE_COST')
+plt.ylabel('Procedure Description')
+plt.tight_layout()
+plt.show()
+# Count of non-null and null REASONCODE
+reasoncode_status = df['REASONCODE'].isnull().value_counts()
+
+# Rename index for clarity
+reasoncode_status.index = ['Missing', 'Present']
+
+# Calculate percentages
+reasoncode_percent = (reasoncode_status / len(df)) * 100
+
+# Combine both into a summary DataFrame
+reasoncode_summary = pd.DataFrame({
+    'Count': reasoncode_status,
+    'Percentage': reasoncode_percent.round(2)
+})
+
+print(reasoncode_summary)
+
+# Donut chart
+plt.figure(figsize=(6,6))
+plt.pie(reasoncode_status, labels=reasoncode_status.index, autopct='%1.1f%%', startangle=90, colors=['#f77f00', '#003049'], wedgeprops={'width': 0.5})
+plt.title('Presence of REASONCODE in Procedures')
+plt.show()
+
+# Count of each gender
+gender_counts = df1['GENDER'].value_counts()
+
+# Percentage
+gender_percent = (gender_counts / len(df1)) * 100
+
+# Combine into one DataFrame
+gender_summary = pd.DataFrame({
+    'Count': gender_counts,
+    'Percentage': gender_percent.round(2)
+})
+
+print(gender_summary)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(6,4))
+sns.barplot(x=gender_counts.index, y=gender_counts.values, palette='pastel')
+plt.title('Gender Distribution')
+plt.xlabel('Gender')
+plt.ylabel('Count')
+plt.tight_layout()
+plt.show()
+
+# Cross-tabulation of Race and Ethnicity
+race_ethnicity_ct = pd.crosstab(df1['RACE'], df1['ETHNICITY'])
+
+# Display table
+print(race_ethnicity_ct)
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10,6))
+sns.heatmap(race_ethnicity_pct, annot=True, cmap='YlGnBu', fmt='.1f')
+plt.title('Race vs. Ethnicity (%)')
+plt.xlabel('Ethnicity')
+plt.ylabel('Race')
+plt.tight_layout()
+plt.show()
+import pandas as pd
+from datetime import datetime
+
+# Assuming df1['BIRTHDATE'] is already datetime
+current_year = datetime.now().year
+df1['AGE'] = current_year - df1['BIRTHDATE'].dt.year
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10,6))
+sns.histplot(df1['AGE'], bins=20, kde=True, color='skyblue')
+plt.title('Age Distribution of Patients')
+plt.xlabel('Age')
+plt.ylabel('Number of Patients')
+plt.tight_layout()
+plt.show()
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10,6))
+sns.histplot(df1['AGE'], bins=20, kde=True, color='skyblue')
+plt.title('Age Distribution of Patients')
+plt.xlabel('Age')
+plt.ylabel('Number of Patients')
+plt.tight_layout()
+plt.show()
+
+# Group by ENCOUNTERCLASS and calculate average cost
+avg_cost_per_class = df2.groupby('ENCOUNTERCLASS')['BASE_ENCOUNTER_COST'].mean().sort_values(ascending=False)
+print(avg_cost_per_class)
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(8,5))
+sns.barplot(x=encounter_class_counts.values, y=encounter_class_counts.index, palette='pastel')
+plt.title('Top Encounter Classes by Frequency')
+plt.xlabel('Count')
+plt.ylabel('Encounter Class')
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(8,5))
+sns.barplot(x=avg_cost_per_class.values, y=avg_cost_per_class.index, palette='viridis')
+plt.title('Average Base Encounter Cost by Encounter Class')
+plt.xlabel('Average Cost')
+plt.ylabel('Encounter Class')
+plt.tight_layout()
+plt.show()
+
+# Group by PAYER and calculate average coverage
+avg_coverage_by_payer = df2.groupby('PAYER')['PAYER_COVERAGE'].mean().sort_values(ascending=False)
+
+# Round for clean output
+avg_coverage_by_payer = avg_coverage_by_payer.round(2)
+
+print(avg_coverage_by_payer)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10,6))
+sns.barplot(x=avg_coverage_by_payer.values, y=avg_coverage_by_payer.index, palette='coolwarm')
+plt.title('Average PAYER_COVERAGE by PAYER')
+plt.xlabel('Average Coverage Amount')
+plt.ylabel('Payer')
+plt.tight_layout()
+plt.show()
+
+# Count REASONCODE frequency, ignoring missing values
+reasoncode_counts = df2['REASONCODE'].value_counts().head(10)
+
+print(reasoncode_counts)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(8,5))
+sns.barplot(x=reasoncode_counts.values, y=reasoncode_counts.index.astype(str), palette='magma')
+plt.title('Top 10 REASONCODE Frequencies')
+plt.xlabel('Count')
+plt.ylabel('REASONCODE')
+plt.tight_layout()
+plt.show()
+
+def missing_values_table(df):
+    total_missing = df.isnull().sum()
+    percent_missing = (total_missing / len(df)) * 100
+    missing_df = pd.DataFrame({'Missing Count': total_missing, 'Missing %': percent_missing.round(2)})
+    return missing_df[missing_df['Missing Count'] > 0]
+
+# Example for df
+missing_summary = missing_values_table(df)
+print(missing_summary)
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12,6))
+sns.heatmap(df.isnull(), cbar=False, yticklabels=False, cmap='viridis')
+plt.title('Missing Values Heatmap')
+plt.show()
+
+
+
+
